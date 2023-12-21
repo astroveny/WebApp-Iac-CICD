@@ -10,5 +10,9 @@
     {
         "ParameterKey": "GitHubBranch",
         "ParameterValue": "main"
+    },
+    {
+        "ParameterKey": "ArtifactBucketName",
+        "ParameterValue": "ArtifactBucketNameValue"
     }
 ]

@@ -2,7 +2,7 @@
 
 PARAMETERS="cfn/networking/parameters.json"
 CFN_FILE="cfn/networking/template.yaml"
-BUCKET=$(cfn-toml key deploy.bucket -t $CONFIG_FILE)
+BUCKET=""
 REGION="us-east-1" # replace with the relevent region
 STACK_NAME="WebAppNet"
 
