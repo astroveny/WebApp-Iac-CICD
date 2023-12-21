@@ -1,10 +1,10 @@
 #! /bin/bash
 
-CFN_FILE="cfn/alb/template.yaml"
+CFN_FILE="../cfn/alb/template.yaml"
 BUCKET=""
 REGION="us-east-1" # replace with the relevent region
 STACK_NAME="WebAppALB"
-PARAMETERS="/cfn/alb/parameters.json"
+PARAMETERS="../cfn/alb/parameters.json"
 
 # deploy
 aws cloudformation deploy \
@@ -12,7 +12,7 @@ aws cloudformation deploy \
   --s3-bucket $BUCKET \
   --s3-prefix WebAppALB \
   --region $REGION \
-  --template-file "$CFN_PATH" \
+  --template-file "$CFN_FILE" \
   --no-execute-changeset \
   --tags group=WebApp-ALB\
   --parameter-overrides $PARAMETERS \

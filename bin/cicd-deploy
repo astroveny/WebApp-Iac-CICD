@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
 CFN_FILE="cfn/cicd/template.yaml"
-PACKAGED_FILE="cfn/tmp/packaged-template.yaml"
-PARAMETERS="/cfn/cicd/parameters.json"
+PACKAGED_FILE="../cfn/tmp/packaged-template.yaml"
+PARAMETERS="../cfn/cicd/parameters.json"
 
 BUCKET=""
 REGION="us-east-1" # replace with the relevent region
@@ -23,7 +23,7 @@ aws cloudformation deploy \
   --s3-bucket $BUCKET \
   --s3-prefix cicd \
   --region $REGION \
-  --template-file "$PACKAGED_PATH" \
+  --template-file "$PACKAGED_FILE" \
   --no-execute-changeset \
   --tags group=WebApp-cicd \
   --parameter-overrides $PARAMETERS \
