@@ -1,6 +1,5 @@
 #! /bin/bash
 
-CONFIG_FILE="cfn/compute/config.toml"
 CFN_FILE="/cfn/compute/template.yaml"
 BUCKET=$(cfn-toml key deploy.bucket -t $CONFIG_FILE)
 REGION="us-east-1" # replace with the relevent region
