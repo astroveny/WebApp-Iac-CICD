@@ -1,0 +1,26 @@
+#!/bin/bash
+
+
+# Download codedeploy-agent
+echo "<<<<< codedeploy-agent start >>>>>"
+sudo yum update
+sudo yum install ruby -y
+sudo yum install wget -y
+cd /home/ec2-user
+wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
+chmod +x ./install
+
+# install & start codedeploy-agent
+sudo ./install auto
+sudo service codedeploy-agent start
+echo "<<<<< codedeploy-agent finish >>>>>"
+
+# install & start docker
+echo "<<<<< docker start >>>>>"
+sudo yum search docker
+sudo yum install docker -y
+sudo newgrp docker
+sudo usermod -a -G docker ec2-user
+sudo systemctl enable docker.service
+sudo systemctl start docker.service
+echo "<<<<< docker finish >>>>>"

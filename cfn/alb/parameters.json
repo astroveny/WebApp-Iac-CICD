@@ -4,7 +4,11 @@
         "ParameterValue": "WebAppNet"
     },
     {
-        "ParameterKey": "",
-        "ParameterValue": ""
+        "ParameterKey": "WebAppPort",
+        "ParameterValue": "WebAppPortValue"
+    },
+    {
+        "ParameterKey": "CertificateArn",
+        "ParameterValue": "CertificateArnValue"
     }
 ]
