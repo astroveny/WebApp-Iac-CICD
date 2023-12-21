@@ -1,4 +1,0 @@
-[deploy]
-  bucket = ''
-  region = ''
-  stack_name = ''

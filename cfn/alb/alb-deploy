@@ -1,6 +1,5 @@
 #! /bin/bash
 
-CONFIG_FILE="cfn/alb/config.toml"
 CFN_FILE="cfn/alb/template.yaml"
 BUCKET=""
 REGION="us-east-1" # replace with the relevent region
