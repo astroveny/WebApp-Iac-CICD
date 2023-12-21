@@ -1,0 +1,127 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  WebApp CICD Stack:
+  - CodePipeline IAM Role
+  - CodeDeploy IAM Role
+  - Web App Pipeline
+Parameters:
+  GitHubConnectionArn:
+    Type: String
+    Description: ARN of the CodeStar Connection to GitHub
+  GitHubRepo:
+    Type: String
+    Description: GitHub repository name (format 'user/repo')
+  GitHubBranch:
+    Type: String
+    Description: GitHub branch name
+  ArtifactBucketName:
+    Type: String
+Resources:
+  CodeBuildImageStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: nested/codebuild.yaml
+      Parameters:
+        GitHubSourceRepo: !Ref GitHubRepo
+        GitHubBranchName: !Ref GitHubBranch
+        ArtifactBucketName: !Ref ArtifactBucketName
+  CodeDeployStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: nested/codedeploy.yaml
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}CodePipelinePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - s3:*
+                  - ec2:*
+                  - autoscaling:*
+                  - codedeploy:*
+                  - codebuild:*
+                  - ecr:*
+                  - elasticloadbalancing:*
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - cloudformation:*
+                  - iam:PassRole
+                  - iam:CreateRole
+                  - iam:DetachRolePolicy
+                  - iam:DeleteRolePolicy
+                  - iam:PutRolePolicy
+                  - iam:DeleteRole
+                  - iam:AttachRolePolicy
+                  - iam:GetRole
+                Effect: Allow
+                Resource: '*'
+              - Action:
+                  - codestar-connections:UseConnection
+                Effect: Allow
+                Resource: !Ref GitHubConnectionArn
+  MyPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucketName
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: GitHub_Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: '1'
+                Provider: CodeStarSourceConnection
+              OutputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                ConnectionArn: !Ref GitHubConnectionArn
+                FullRepositoryId: !Ref GitHubRepo
+                BranchName: !Ref GitHubBranch
+                OutputArtifactFormat: CODEBUILD_CLONE_REF
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: BuildContainerImage
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+              Configuration:
+                ProjectName: !GetAtt CodeBuildImageStack.Outputs.CodeBuildProjectName
+              RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: CodeDeploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: CodeDeploy
+              InputArtifacts:
+                - Name: BuildArtifact
+              Configuration:
+                ApplicationName: !GetAtt CodeDeployStack.Outputs.CodeDeployApplicationName
+                DeploymentGroupName: !GetAtt CodeDeployStack.Outputs.CodeDeployDeploymentGroupName
+              RunOrder: 1

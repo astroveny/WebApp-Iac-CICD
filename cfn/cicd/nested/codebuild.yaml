@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  AWS CodeBuild Project as part of the CICDStack:
+  - CodeBuild Service Role
+  - CodeBuild Project
+Parameters:
+  GitHubSourceRepo:
+    Type: String
+    Description: GitHub repository URL (format 'https://github.com/YourGitHubUser/RepoName.git')
+  GitHubBranchName:
+    Type: String
+    Description: GitHub branch name
+  ArtifactBucketName:
+    Type: String
+    Description: CodePipeline Artifacts
+  CodeBuildImage:
+    Type: String
+    Default: aws/codebuild/amazonlinux2-x86_64-standard:4.0
+  CodeBuildComputeType:
+    Type: String
+    Default: BUILD_GENERAL1_SMALL
+  CodeBuildTimeoutMins:
+    Type: Number
+    Default: 5
+  BuildSpec:
+    Type: String
+    Default: buildspec.yaml
+Resources:
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: CodeBuildECRPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:CompleteLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:InitiateLayerUpload
+                  - ecr:BatchGetImage
+                  - ecr:PutImage
+                  - logs:*
+                Resource: '*'
+        - PolicyName: !Sub ${AWS::StackName}VPCPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeDhcpOptions
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DeleteNetworkInterface
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeSecurityGroups
+                  - ec2:DescribeVpcs
+                Effect: Allow
+                Resource: '*'
+              - Action:
+                  - ec2:CreateNetworkInterfacePermission
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: !Sub ${AWS::StackName}S3Policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:DeleteObject
+                  - s3:PutObject
+                Effect: Allow
+                Resource: !Sub arn:aws:s3:::${ArtifactBucketName}/*
+              - Action:
+                  - s3:ListBucket
+                Effect: Allow
+                Resource: !Sub arn:aws:s3:::${ArtifactBucketName}
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Ref AWS::StackName
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      QueuedTimeoutInMinutes: !Ref CodeBuildTimeoutMins
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: !Ref CodeBuildComputeType
+        Image: !Ref CodeBuildImage
+        Type: LINUX_CONTAINER
+        PrivilegedMode: true
+      TimeoutInMinutes: 20
+      Source:
+        Type: GITHUB
+        Location: !Ref GitHubSourceRepo
+        BuildSpec: !Ref BuildSpec
+        GitCloneDepth: 1
+        ReportBuildStatus: true
+        SourceIdentifier: !Ref GitHubBranchName
+        Auth:
+          Type: OAUTH
+Outputs:
+  CodeBuildProjectName:
+    Description: Name of the CodeBuild Project
+    Value: !Ref CodeBuildProject

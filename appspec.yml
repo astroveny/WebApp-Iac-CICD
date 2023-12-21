@@ -1,0 +1,20 @@
+version: 0.0
+os: linux
+files:
+  - source: scripts/
+    destination: /home/ec2-user/app/scripts
+permissions:
+  - object: /home/ec2-user/app/scripts
+    owner: ec2-user
+    mode: 755
+    type:
+      - file    
+hooks:
+  ApplicationStop:
+    - location: scripts/stop_app.sh
+      timeout: 30
+  ApplicationStart:
+    - location: scripts/start_app.sh
+      timeout: 60
+      
+  

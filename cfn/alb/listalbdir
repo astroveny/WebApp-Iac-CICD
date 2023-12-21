@@ -1,0 +1,6 @@
+#! /bin/bash
+
+pwd
+cfn-lint template.yaml
+
+

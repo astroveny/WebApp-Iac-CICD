@@ -1,0 +1,10 @@
+[deploy]
+bucket = ''
+region = ''
+stack_name = ''
+
+[parameters]
+  NetworkingStack = ''
+  ALBStack = ''
+  CertificateArn=''
+  WebAppPort=''

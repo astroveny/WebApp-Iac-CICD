@@ -1,0 +1,20 @@
+#! /bin/bash
+
+CONFIG_FILE="cfn/alb/config.toml"
+CFN_FILE="cfn/alb/template.yaml"
+BUCKET=""
+REGION="us-east-1" # replace with the relevent region
+STACK_NAME="WebAppALB"
+PARAMETERS="/cfn/alb/parameters.json"
+
+# deploy
+aws cloudformation deploy \
+  --stack-name $STACK_NAME \
+  --s3-bucket $BUCKET \
+  --s3-prefix WebAppALB \
+  --region $REGION \
+  --template-file "$CFN_PATH" \
+  --no-execute-changeset \
+  --tags group=WebApp-ALB\
+  --parameter-overrides $PARAMETERS \
+  --capabilities CAPABILITY_NAMED_IAM

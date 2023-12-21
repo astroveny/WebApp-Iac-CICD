@@ -1,0 +1,14 @@
+[
+    {
+        "ParameterKey": "GitHubConnectionArn",
+        "ParameterValue": "GitHubConnectionArnValue"
+    },
+    {
+        "ParameterKey": "GitHubRepo",
+        "ParameterValue": "WebApp-ST-CFN-CICD"
+    },
+    {
+        "ParameterKey": "GitHubBranch",
+        "ParameterValue": "main"
+    }
+]

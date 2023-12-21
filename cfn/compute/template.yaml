@@ -1,0 +1,176 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  WebApp Compute Stack:
+  - Launch Template
+  - LT Security Group
+  - ASG
+  - IAM Role and Policies
+Parameters:
+  NetworkingStack:
+    Type: String
+    Description: Networking resources eg. VPC, Subnets
+  ALBStack:
+    Type: String
+    Description: Load Balancer resources> ALB, TG and SG
+  UserData:
+    Type: String
+    Description: Base64 encoded UserData script
+  MyIP:
+    Type: String
+    Description: Public IP address for SSH access
+  WebAppPort:
+    Type: Number
+    Description: Port number on which the WebApp is running
+    Default: 8501
+  LatestAmiId:
+    Description: Region specific image from the Parameter Store
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64
+  InstanceType:
+    Description: Amazon EC2 instance type for the instances
+    Type: String
+    AllowedValues:
+      - t3.micro
+      - t2.micro
+      - t3a.micro
+      - c7a.medium
+    Default: t3.micro
+
+Resources:
+
+  # IAM Role for EC2 Instances
+  WebAppEC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
+        - arn:aws:iam::aws:policy/AmazonEC2RoleforAWSCodeDeploy
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Path: "/"
+
+  # Custom Policy for S3 Access
+  WebAppS3Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: WebAppS3Access
+      Roles: [ !Ref WebAppEC2Role ]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - 's3:Get*'
+              - 's3:List*'
+            Effect: Allow
+            Resource: '*'
+
+  # Instance Profile
+  WebAppInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref WebAppEC2Role
+      Path: "/"
+
+
+  # Launch Template
+  WebAppLT:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: WebApp-LT
+      LaunchTemplateData:
+        IamInstanceProfile:
+          Arn: !GetAtt WebAppInstanceProfile.Arn
+        NetworkInterfaces:
+          - AssociatePublicIpAddress: true
+            DeviceIndex: 0
+            Groups:
+              - !Ref WebAppSG
+        ImageId: !Ref LatestAmiId
+        UserData: !Ref UserData
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: project
+                Value: WebApp-project
+        MetadataOptions:
+          InstanceMetadataTags: enabled
+        InstanceRequirements:
+          VCpuCount:
+            Min: 0
+            Max: 1
+          MemoryMiB:
+            Min: 0
+  # Security Group
+  WebAppSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: WebApp-sg
+      VpcId: !ImportValue
+        Fn::Sub: ${NetworkingStack}-VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref MyIP
+        - IpProtocol: tcp
+          FromPort: !Ref WebAppPort
+          ToPort: !Ref WebAppPort
+          SourceSecurityGroupId: !ImportValue
+            Fn::Sub: ${ALBStack}-ALBSecurityGroupId
+          Description: ALB
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: WebApp-sg
+  # Auto Scaling Group
+  WebAppAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones: !Split
+        - ','
+        - !ImportValue
+          Fn::Sub: ${NetworkingStack}-AvailabilityZones
+      VPCZoneIdentifier: !Split
+        - ','
+        - !ImportValue
+          Fn::Sub: ${NetworkingStack}-PublicSubnetIds
+      MixedInstancesPolicy:
+        LaunchTemplate:
+          LaunchTemplateSpecification:
+            LaunchTemplateId: !Ref WebAppLT
+            Version: !GetAtt WebAppLT.LatestVersionNumber
+          Overrides:
+            - InstanceType: !Ref InstanceType
+        InstancesDistribution:
+          OnDemandPercentageAboveBaseCapacity: 0
+          SpotAllocationStrategy: price-capacity-optimized
+      MinSize: 1
+      MaxSize: 1
+      DesiredCapacity: 1
+      TargetGroupARNs:
+        - !ImportValue
+          Fn::Sub: ${ALBStack}-WebAppALBTargetGroup
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
+
+
+Outputs:
+  LaunchTemplateId:
+    Description: ID of the Launch Template
+    Value: !Ref WebAppLT
+    Export:
+      Name: !Sub ${AWS::StackName}-WebAppLT
+  SecurityGroupId:
+    Description: ID of the WebApp Security Group
+    Value: !Ref WebAppSG
+    Export:
+      Name: !Sub ${AWS::StackName}-WebAppSG

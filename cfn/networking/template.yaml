@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  Networking stack Resources:
+  - VPC
+  - IGW
+  - Public Route Table
+    - route to the IGW
+    - route to Local
+  - 2 Public Subnets
+Parameters:
+  VpcCidrBlock:
+    Type: String
+    Default: 10.0.0.0/16
+  AvailabilityZones:
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+    Description: List of Availability Zones.
+  SubnetCidrBlocks:
+    Type: CommaDelimitedList
+    Description: List of CIDR blocks for the subnets.
+    Default: |
+      10.0.0.0/24, 10.0.4.0/24
+Resources:
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidrBlock
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub vpc-ue1-d-${AWS::StackName}
+  IGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub igw-ue1-d-${AWS::StackName}
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref IGW
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+      Tags:
+        - Key: Name
+          Value: !Sub pubrt-ue1-d-${AWS::StackName}
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref IGW
+  SubnetPub1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Select
+        - 0
+        - !Ref SubnetCidrBlocks
+      AvailabilityZone: !Select
+        - 0
+        - !Ref AvailabilityZones
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub subpub1-ue1-d-${AWS::StackName}
+  SubnetPub2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Select
+        - 1
+        - !Ref SubnetCidrBlocks
+      AvailabilityZone: !Select
+        - 1
+        - !Ref AvailabilityZones
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub subpub2-ue1-d-${AWS::StackName}
+  SubnetPub1RTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetPub1
+      RouteTableId: !Ref PublicRouteTable
+  SubnetPub2RTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetPub2
+      RouteTableId: !Ref PublicRouteTable
+Outputs:
+  VpcId:
+    Description: The ID of the VPC
+    Value: !Ref MyVPC
+    Export:
+      Name: !Sub ${AWS::StackName}-VpcId
+  PublicSubnetIds:
+    Description: The IDs of the public subnets
+    Value: !Join
+      - ','
+      - - !Ref SubnetPub1
+        - !Ref SubnetPub2
+    Export:
+      Name: !Sub ${AWS::StackName}-PublicSubnetIds
+  AvailabilityZones:
+    Description: The Availability Zones used
+    Value: !Join
+      - ','
+      - !Ref AvailabilityZones
+    Export:
+      Name: !Sub ${AWS::StackName}-AvailabilityZones

@@ -1,0 +1,20 @@
+#! /bin/bash
+
+CONFIG_FILE="cfn/compute/config.toml"
+CFN_FILE="/cfn/compute/template.yaml"
+BUCKET=$(cfn-toml key deploy.bucket -t $CONFIG_FILE)
+REGION="us-east-1" # replace with the relevent region
+STACK_NAME="WebAppCompute"
+PARAMETERS="/cfn/compute/parameters.json"
+
+# REPLACE the existing aws cli with the followng
+aws cloudformation deploy \
+  --stack-name $STACK_NAME \
+  --s3-bucket $BUCKET \
+  --s3-prefix WebAppCompute \
+  --region $REGION \
+  --template-file "$CFN_PATH" \
+  --no-execute-changeset \
+  --tags group=WepApp-compute\
+  --parameter-overrides $PARAMETERS \
+  --capabilities CAPABILITY_NAMED_IAM

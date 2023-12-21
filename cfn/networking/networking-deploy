@@ -1,0 +1,18 @@
+#! /bin/bash
+
+PARAMETERS="cfn/networking/parameters.json"
+CFN_FILE="cfn/networking/template.yaml"
+BUCKET=$(cfn-toml key deploy.bucket -t $CONFIG_FILE)
+REGION="us-east-1" # replace with the relevent region
+STACK_NAME="WebAppNet"
+
+# REPLACE the existing aws cli with the followng
+aws cloudformation deploy \
+  --stack-name $STACK_NAME \
+  --s3-bucket $BUCKET \
+  --s3-prefix WebAppNet \
+  --region $REGION \
+  --template-file "$CFN_PATH" \
+  --no-execute-changeset \
+  --tags group=WepApp-TL\
+  --capabilities CAPABILITY_NAMED_IAM
