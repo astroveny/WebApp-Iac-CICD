@@ -6,7 +6,7 @@ PARAMETERS="../cfn/cicd/parameters.json"
 
 BUCKET=""
 REGION="us-east-1" # replace with the relevent region
-STACK_NAME="WebAppALB"
+STACK_NAME="WebAppCICD"
 
 # package
 echo ">>>> packaging CFN to S3 <<<<"

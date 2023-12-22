@@ -26,15 +26,7 @@ Parameters:
     Description: Region specific image from the Parameter Store
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64
-  InstanceType:
-    Description: Amazon EC2 instance type for the instances
-    Type: String
-    AllowedValues:
-      - t3.micro
-      - t2.micro
-      - t3a.micro
-      - c7a.medium
-    Default: t3.micro
+  
 
 Resources:
 
@@ -149,7 +141,10 @@ Resources:
             LaunchTemplateId: !Ref WebAppLT
             Version: !GetAtt WebAppLT.LatestVersionNumber
           Overrides:
-            - InstanceType: !Ref InstanceType
+            - InstanceType: t3.micro
+            - InstanceType: t2.micro
+            - InstanceType: t3a.micro
+            - InstanceType: c7a.medium
         InstancesDistribution:
           OnDemandPercentageAboveBaseCapacity: 0
           SpotAllocationStrategy: price-capacity-optimized
@@ -159,7 +154,7 @@ Resources:
       TargetGroupARNs:
         - !ImportValue
           Fn::Sub: ${ALBStack}-WebAppALBTargetGroup
-      HealthCheckType: ELB
+      HealthCheckType: EC2
       HealthCheckGracePeriod: 300
 
 

@@ -5,7 +5,7 @@
     },
     {
         "ParameterKey": "GitHubRepo",
-        "ParameterValue": "WebApp-ST-CFN-CICD"
+        "ParameterValue": "https://YourRepoUrl"
     },
     {
         "ParameterKey": "GitHubBranch",
