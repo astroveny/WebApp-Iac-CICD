@@ -24,7 +24,7 @@ Parameters:
     Default: 5
   BuildSpec:
     Type: String
-    Default: buildspec.yaml
+    Default: buildspec.yml
 Resources:
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
@@ -51,6 +51,7 @@ Resources:
                   - ecr:InitiateLayerUpload
                   - ecr:BatchGetImage
                   - ecr:PutImage
+                  - ecr:GetDownloadUrlForLayer
                   - logs:*
                 Resource: '*'
         - PolicyName: !Sub ${AWS::StackName}VPCPolicy
