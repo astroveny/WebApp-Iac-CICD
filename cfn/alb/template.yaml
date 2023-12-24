@@ -92,6 +92,11 @@ Outputs:
     Value: !Ref WebAppALB
     Export:
       Name: !Sub "${AWS::StackName}-WebAppALB"
+  ALBURL:
+    Description: The URL of the Application Load Balancer
+    Value: !GetAtt WebAppALB.DNSName
+    Export:
+      Name: !Sub "${AWS::StackName}-ALBURL"
   TargetGroupArn:
     Description: ARN of the Target Group
     Value: !Ref WebAppTargetGroup

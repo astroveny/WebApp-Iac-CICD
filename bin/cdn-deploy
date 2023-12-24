@@ -1,19 +1,19 @@
 #! /bin/bash
 
-CFN_FILE="../cfn/compute/template.yaml"
+CFN_FILE="../cfn/cdn/template.yaml"
 BUCKET="" # Cloudformation bucket
 REGION="us-east-1" # replace with the relevent region
-STACK_NAME="WebAppCompute"
-PARAMETERS="../cfn/compute/parameters.json"
+STACK_NAME="WebAppCDN"
+PARAMETERS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' ../cfn/cdn/parameters.json | tr '\n' ' ')
 
-# REPLACE the existing aws cli with the followng
+# deploy
 aws cloudformation deploy \
   --stack-name $STACK_NAME \
   --s3-bucket $BUCKET \
-  --s3-prefix WebAppCompute \
+  --s3-prefix WebAppCDN \
   --region $REGION \
   --template-file "$CFN_FILE" \
   --no-execute-changeset \
-  --tags group=WepApp-compute\
+  --tags group=WebApp-CDN\
   --parameter-overrides $PARAMETERS \
   --capabilities CAPABILITY_NAMED_IAM

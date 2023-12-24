@@ -1,0 +1,26 @@
+[
+    {
+        "ParameterKey": "DomainName",
+        "ParameterValue": "YourDomainName.com"
+    },
+    {
+        "ParameterKey": "HostedZoneRecord",
+        "ParameterValue": "webapp"
+    },
+    {
+        "ParameterKey": "ALBStack",
+        "ParameterValue": "WebAppALB"
+    },
+    {
+        "ParameterKey": "DomainHostedZoneId",
+        "ParameterValue": "YourHostedZoneId"
+    },
+    {
+        "ParameterKey": "CustomDomainName",
+        "ParameterValue": "webapp.YourDomainName.com"
+    },
+    {
+        "ParameterKey": "CertificateArn",
+        "ParameterValue": "CertificateArnValue"
+    }
+]

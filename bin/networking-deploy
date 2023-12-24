@@ -2,7 +2,7 @@
 
 PARAMETERS="../cfn/networking/parameters.json"
 CFN_FILE="../cfn/networking/template.yaml"
-BUCKET=""
+BUCKET="" # Cloudformation bucket
 REGION="us-east-1" # replace with the relevent region
 STACK_NAME="WebAppNet"
 

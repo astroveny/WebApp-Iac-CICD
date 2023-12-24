@@ -1,7 +1,7 @@
 #! /bin/bash
 
 CFN_FILE="../cfn/alb/template.yaml"
-BUCKET=""
+BUCKET="" # Cloudformation bucket
 REGION="us-east-1" # replace with the relevent region
 STACK_NAME="WebAppALB"
 PARAMETERS="../cfn/alb/parameters.json"
