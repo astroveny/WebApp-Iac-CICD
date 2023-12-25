@@ -2,7 +2,7 @@
 
 CFN_FILE="cfn/cicd/template.yaml"
 PACKAGED_FILE="../cfn/tmp/packaged-template.yaml"
-PARAMETERS="../cfn/cicd/parameters.json"
+PARAMETERS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' ../cfn/cicd/parameters.json | tr '\n' ' ')
 
 BUCKET="" # Cloudformation bucket
 REGION="us-east-1" # replace with the relevent region

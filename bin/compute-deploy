@@ -4,7 +4,7 @@ CFN_FILE="../cfn/compute/template.yaml"
 BUCKET="" # Cloudformation bucket
 REGION="us-east-1" # replace with the relevent region
 STACK_NAME="WebAppCompute"
-PARAMETERS="../cfn/compute/parameters.json"
+PARAMETERS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' ../cfn/compute/parameters.json | tr '\n' ' ')
 
 # REPLACE the existing aws cli with the followng
 aws cloudformation deploy \
