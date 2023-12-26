@@ -1,15 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: |
   WebApp ALB Stack:
-  - ALB 
+  - ALB
     - ipv4
     - internet facing
     - certificate attached from Amazon Certification Manager (ACM)
   - HTTPSListener
     - HTTPS to WebApp Target Group
-  - Target Group 
+  - Target Group
   - ALB Security Groups
-
 Parameters:
   NetworkingStack:
     Type: String
@@ -20,7 +19,6 @@ Parameters:
   WebAppPort:
     Type: Number
     Description: Port number on which the WebApp is running
-
 Resources:
   WebAppALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -29,11 +27,10 @@ Resources:
       Type: application
       Scheme: internet-facing
       IpAddressType: ipv4
-      Subnets:
-        Fn::Split:
-          - ","
-          - Fn::ImportValue: 
-              !Sub "${NetworkingStack}-PublicSubnetIds"
+      Subnets: !Split
+        - ','
+        - !ImportValue
+          Fn::Sub: ${NetworkingStack}-PublicSubnetIds
       SecurityGroups:
         - !Ref ALBSecurityGroup
       LoadBalancerAttributes:
@@ -43,7 +40,6 @@ Resources:
           Value: true
         - Key: access_logs.s3.enabled
           Value: false
-
   WebAppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -51,12 +47,10 @@ Resources:
       TargetType: instance
       Port: !Ref WebAppPort
       Protocol: HTTP
-      VpcId: 
-        Fn::ImportValue: 
-          !Sub "${NetworkingStack}-VpcId"
+      VpcId: !ImportValue
+        Fn::Sub: ${NetworkingStack}-VpcId
       HealthCheckProtocol: HTTP
       HealthCheckPath: /HealthCheck
-
   HTTPSListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -72,11 +66,10 @@ Resources:
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub "${AWS::StackName}-SG"
+      GroupName: !Sub ${AWS::StackName}-SG
       GroupDescription: Security group for ALB
-      VpcId:
-        Fn::ImportValue: 
-          !Sub "${NetworkingStack}-VpcId"
+      VpcId: !ImportValue
+        Fn::Sub: ${NetworkingStack}-VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 443
@@ -85,26 +78,24 @@ Resources:
       SecurityGroupEgress:
         - IpProtocol: -1
           CidrIp: 0.0.0.0/0
-
 Outputs:
   ALBArn:
     Description: ARN of the Application Load Balancer
     Value: !Ref WebAppALB
     Export:
-      Name: !Sub "${AWS::StackName}-WebAppALB"
+      Name: !Sub ${AWS::StackName}-WebAppALB
   ALBURL:
     Description: The URL of the Application Load Balancer
     Value: !GetAtt WebAppALB.DNSName
     Export:
-      Name: !Sub "${AWS::StackName}-ALBURL"
+      Name: !Sub ${AWS::StackName}-ALBURL
   TargetGroupArn:
     Description: ARN of the Target Group
     Value: !Ref WebAppTargetGroup
     Export:
-      Name: !Sub "${AWS::StackName}-WebAppALBTargetGroup"
+      Name: !Sub ${AWS::StackName}-WebAppALBTargetGroup
   ALBSecurityGroupId:
     Description: ID of the ALB Security Group
     Value: !Ref ALBSecurityGroup
     Export:
-      Name: !Sub "${AWS::StackName}-ALBSecurityGroupId"
- 
+      Name: !Sub ${AWS::StackName}-ALBSecurityGroupId
