@@ -14,6 +14,8 @@ Parameters:
   AvailabilityZones:
     Type: List<AWS::EC2::AvailabilityZone::Name>
     Description: List of Availability Zones.
+    Default: |
+      us-east-1a, us-east-1b
   SubnetCidrBlocks:
     Type: CommaDelimitedList
     Description: List of CIDR blocks for the subnets.
