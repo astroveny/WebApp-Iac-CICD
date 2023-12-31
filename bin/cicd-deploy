@@ -5,7 +5,7 @@ PACKAGED_FILE="../cfn/tmp/packaged-template.yaml"
 PARAMETERS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' ../cfn/cicd/parameters.json | tr '\n' ' ')
 
 BUCKET="" # Cloudformation bucket
-REGION="us-east-1" # replace with the relevent region
+REGION="us-east-1" # replace with the relevant region
 STACK_NAME="WebAppCICD"
 
 # package

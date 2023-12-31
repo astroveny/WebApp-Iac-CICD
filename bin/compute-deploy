@@ -2,7 +2,7 @@
 
 CFN_FILE="../cfn/compute/template.yaml"
 BUCKET="" # Cloudformation bucket
-REGION="us-east-1" # replace with the relevent region
+REGION="us-east-1" # replace with the relevant region
 STACK_NAME="WebAppCompute"
 PARAMETERS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' ../cfn/compute/parameters.json | tr '\n' ' ')
 

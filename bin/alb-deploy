@@ -2,7 +2,7 @@
 
 CFN_FILE="../cfn/alb/template.yaml"
 BUCKET="" # Cloudformation bucket
-REGION="us-east-1" # replace with the relevent region
+REGION="us-east-1" # replace with the relevant region
 STACK_NAME="WebAppALB"
 PARAMETERS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' ../cfn/alb/parameters.json | tr '\n' ' ')
 
