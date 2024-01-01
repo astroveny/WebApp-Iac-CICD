@@ -108,10 +108,6 @@ Resources:
         Fn::Sub: ${NetworkingStack}-VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref MyIP
-        - IpProtocol: tcp
           FromPort: !Ref WebAppPort
           ToPort: !Ref WebAppPort
           SourceSecurityGroupId: !ImportValue

@@ -5,6 +5,10 @@
     },
     {
         "ParameterKey": "GitHubRepo",
+        "ParameterValue": "GitHubUser/RepoName"
+    },
+    {
+        "ParameterKey": "GitHubSourceRepo",
         "ParameterValue": "https://YourRepoUrl"
     },
     {
