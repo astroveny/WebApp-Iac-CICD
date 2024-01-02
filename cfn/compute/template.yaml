@@ -26,11 +26,7 @@ Parameters:
     Description: Region specific image from the Parameter Store
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64
-  
-
 Resources:
-
-  # IAM Role for EC2 Instances
   WebAppEC2Role:
     Type: AWS::IAM::Role
     Properties:
@@ -40,38 +36,32 @@ Resources:
           - Effect: Allow
             Principal:
               Service: ec2.amazonaws.com
-            Action: 'sts:AssumeRole'
+            Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
         - arn:aws:iam::aws:policy/AmazonEC2RoleforAWSCodeDeploy
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-      Path: "/"
-
-  # Custom Policy for S3 Access
+      Path: /
   WebAppS3Policy:
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: WebAppS3Access
-      Roles: [ !Ref WebAppEC2Role ]
+      Roles:
+        - !Ref WebAppEC2Role
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
           - Action:
-              - 's3:Get*'
-              - 's3:List*'
+              - s3:Get*
+              - s3:List*
             Effect: Allow
             Resource: '*'
-
-  # Instance Profile
   WebAppInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Roles:
         - !Ref WebAppEC2Role
-      Path: "/"
-
-
-  # Launch Template
+      Path: /
   WebAppLT:
     Type: AWS::EC2::LaunchTemplate
     Properties:
@@ -99,7 +89,6 @@ Resources:
             Max: 1
           MemoryMiB:
             Min: 0
-  # Security Group
   WebAppSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -119,7 +108,6 @@ Resources:
       Tags:
         - Key: Name
           Value: WebApp-sg
-  # Auto Scaling Group
   WebAppAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -152,8 +140,6 @@ Resources:
           Fn::Sub: ${ALBStack}-WebAppALBTargetGroup
       HealthCheckType: EC2
       HealthCheckGracePeriod: 300
-
-
 Outputs:
   LaunchTemplateId:
     Description: ID of the Launch Template
