@@ -1,7 +1,11 @@
 # Web App deployment using Cloudformation
 
+### Solution Diagram
+
 ![webapp-iac-diagram](https://github.com/astroveny/WebApp-Iac-CICD/assets/91587569/5a5456c9-af28-4ce9-9c09-b145d7c93770)  
 
+  ---
+### CloudFormation Stacks
 
 ![cfn-stacks](https://github.com/astroveny/WebApp-Iac-CICD/assets/91587569/7512386b-09b2-4643-b234-ecbf6e57948b)  
 
