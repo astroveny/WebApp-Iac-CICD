@@ -1,5 +1,7 @@
 # Web App deployment using Cloudformation
 
+### [Blog post](https://dev.to/astroveny/streamlit-app-deployment-using-aws-cloudformation-and-codepipeline-pn6-temp-slug-8559384)
+
 ### Solution Diagram
 
 ![webapp-iac-diagram](https://github.com/astroveny/WebApp-Iac-CICD/assets/91587569/5a5456c9-af28-4ce9-9c09-b145d7c93770)  
