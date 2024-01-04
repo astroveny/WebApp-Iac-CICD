@@ -1,6 +1,6 @@
 # Web App deployment using Cloudformation
 
-## [Blog Post](https://dev.to/astroveny/streamlit-app-deployment-using-aws-cloudformation-and-codepipeline-pn6-temp-slug-8559384)
+## [>> Blog Post](https://dev.to/astroveny/streamlit-app-deployment-using-aws-cloudformation-and-codepipeline-pn6-temp-slug-8559384)
 
 ### Solution Diagram
 
