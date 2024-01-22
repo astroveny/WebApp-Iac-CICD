@@ -6,7 +6,7 @@ BUCKET="" # Cloudformation bucket
 REGION="us-east-1" # replace with the relevant region
 STACK_NAME="WebAppNet"
 
-# REPLACE the existing aws cli with the followng
+# deploy
 aws cloudformation deploy \
   --stack-name $STACK_NAME \
   --s3-bucket $BUCKET \
